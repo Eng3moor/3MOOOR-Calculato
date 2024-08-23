@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3MOOOR Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('math.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .calculator {
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 450px; /* زدت العرض */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9); /* لتحسين الوضوح */
+        }
+
+        .display {
+            background-color: #333;
+            color: #fff;
+            padding: 20px; /* زدت حجم padding */
+            text-align: right;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .display input {
+            width: 100%;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            font-size: 35px; /* زدت حجم الخط */
+            text-align: right;
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px; /* زدت الفجوة */
+            padding: 15px; /* زدت padding */
+        }
+
+        .btn {
+            padding: 25px; /* زدت حجم الأزرار */
+            font-size: 22px; /* زدت حجم الخط للأزرار */
+            border: none;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .operator {
+            background-color: #ff9500;
+            color: #fff;
+        }
+
+        .operator:hover {
+            background-color: #e08900;
+        }
+
+        .equals {
+            background-color: #007aff;
+            color: #fff;
+            grid-column: span 2;
+        }
+
+        .equals:hover {
+            background-color: #006ae8;
+        }
+
+        .clear {
+            background-color: #ff3b30;
+            color: #fff;
+        }
+
+        .clear:hover {
+            background-color: #e02c20;
+        }
+
+        .backspace {
+            background-color: #ffcc00;
+            color: #fff;
+        }
+
+        .backspace:hover {
+            background-color: #e0b800;
+        }
+
+        .special {
+            background-color: #34c759;
+            color: #fff;
+        }
+
+        .special:hover {
+            background-color: #2da94d;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <input type="text" id="calc-screen" disabled>
+        </div>
+        <div class="buttons">
+            <!-- Row 1 -->
+            <button class="btn special">tan</button>
+            <button class="btn special">√</button>
+            <button class="btn special">x²</button>
+            <button class="btn special">%</button>
+           
+            <!-- Row 2 -->
+            <button class="btn special">³√</button>
+            <button class="btn special">x^y</button>
+            <button class="btn special">sin</button>
+            <button class="btn special">cos</button>
+            <!-- Row 3 -->
+         
+            <button class="btn operator">/</button>
+            <button class="btn">7</button>
+            <button class="btn">8</button>
+            <button class="btn">9</button>
+            <button class="btn operator">*</button>
+            <!-- Row 4 -->
+            <button class="btn">4</button>
+            <button class="btn">5</button>
+            <button class="btn">6</button>
+            <button class="btn operator">-</button>
+            <!-- Row 5 -->
+            <button class="btn">1</button>
+            <button class="btn">2</button>
+            <button class="btn">3</button>
+            <button class="btn operator">+</button>
+            <!-- Row 6 -->
+            <button class="btn">0</button>
+            <button class="btn">.</button>
+            <button class="btn equals">=</button>
+            <button class="btn clear">AC</button>
+            <!-- Row 7 -->
+            <button class="btn backspace">⌫</button> <!-- زر الحذف -->
+        </div>
+    </div>
+
+    <script>
+        const screen = document.getElementById('calc-screen');
+        const buttons = document.querySelectorAll('.btn');
+
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+        let result = '';
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.textContent;
+
+                if (button.classList.contains('operator')) {
+                    if (currentInput === '' && previousInput !== '') {
+                        currentInput = previousInput;
+                    }
+                    operator = value;
+                    previousInput = currentInput;
+                    currentInput = '';
+                    screen.value += ` ${operator} `;
+                } else if (button.classList.contains('equals')) {
+                    currentInput = evaluate(previousInput, operator, currentInput);
+                    screen.value = currentInput;
+                    previousInput = '';
+                    operator = '';
+                } else if (button.classList.contains('clear')) {
+                    currentInput = '';
+                    operator = '';
+                    previousInput = '';
+                    screen.value = '';
+                } else if (button.classList.contains('backspace')) {
+                    currentInput = currentInput.slice(0, -1);
+                    screen.value = currentInput;
+                } else if (button.classList.contains('special')) {
+                    currentInput = specialOperation(value, currentInput);
+                    screen.value = currentInput;
+                } else {
+                    currentInput += value;
+                    screen.value += value;
+                }
+            });
+        });
+
+        function evaluate(num1, operator, num2) {
+            const a = parseFloat(num1);
+            const b = parseFloat(num2);
+
+            if (isNaN(a) || isNaN(b)) return "Error";
+
+            switch (operator) {
+                case '+':
+                    return (a + b).toString();
+                case '-':
+                    return (a - b).toString();
+                case '*':
+                    return (a * b).toString();
+                case '/':
+                    return b === 0 ? "Error" : (a / b).toString();
+                default:
+                    return num2;
+            }
+        }
+
+        function specialOperation(operation, num) {
+            const value = parseFloat(num);
+            if (isNaN(value)) return "Error";
+
+            switch (operation) {
+                case '√':
+                    return value < 0 ? "Error" : Math.sqrt(value).toString();
+                case 'x²':
+                    return (value * value).toString();
+                case '³√':
+                    return Math.cbrt(value).toString(); // الجذر التكعيبي
+                case 'x^y':
+                    const exponent = parseFloat(prompt("Enter the exponent:"));
+                    return Math.pow(value, exponent).toString(); // الأسس
+                case '%':
+                    return (value / 100).toString();
+                case 'sin':
+                    return Math.sin(value).toString(); // الجيب
+                case 'cos':
+                    return Math.cos(value).toString(); // جيب التمام
+                case 'tan':
+                    return Math.tan(value).toString(); // الظل
+                default:
+                    return num;
+            }
+        }
+    </script>
+</body>
+</html>
